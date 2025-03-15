@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cricket Scoreboard - Two Teams</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            color: #0275d8;
+        }
+        #scoreboard {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            display: inline-block;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+        }
+        #score {
+            font-size: 30px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        #overs {
+            font-size: 20px;
+            color: #555;
+            margin-bottom: 10px;
+        }
+        .btn {
+            font-size: 16px;
+            padding: 10px;
+            margin: 5px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .run-btn {
+            background-color: #5cb85c;
+            color: white;
+        }
+        .wicket-btn {
+            background-color: #d9534f;
+            color: white;
+        }
+        .reset-btn {
+            background-color: #f0ad4e;
+            color: white;
+        }
+        .team-btn {
+            background-color: #0275d8;
+            color: white;
+        }
+        input {
+            padding: 8px;
+            margin: 5px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🏏 Two-Team Cricket Scoreboard</h1>
+
+    <h2>Enter Team & Player Names:</h2>
+    <input type="text" id="teamAName" placeholder="Enter Team A Name">
+    <input type="text" id="teamBName" placeholder="Enter Team B Name"><br>
+    <input type="text" id="playerAName" placeholder="Enter Player 1 (Team A)">
+    <input type="text" id="playerBName" placeholder="Enter Player 2 (Team B)">
+    <button onclick="setTeamNames()">Set Names</button>
+
+    <h2 id="currentTeam">Batting: Team A</h2>
+    <h3 id="currentPlayer">Current Player: -</h3>
+
+    <div id="scoreboard">
+        <h2 id="teamNameDisplay">Team A Score</h2>
+        <div id="score">0 / 0</div>
+        <p id="overs">Overs: 0.0</p>
+
+        <button class="btn run-btn" onclick="addRun(0)">Dot Ball</button>
+        <button class="btn run-btn" onclick="addRun(1)">1 Run</button>
+        <button class="btn run-btn" onclick="addRun(2)">2 Runs</button>
+        <button class="btn run-btn" onclick="addRun(3)">3 Runs</button>
+        <button class="btn run-btn" onclick="addRun(4)">4 Runs</button>
+        <button class="btn run-btn" onclick="addRun(5)">5 Runs</button>
+        <button class="btn run-btn" onclick="addRun(6)">6 Runs</button>
+        <br>
+        <button class="btn wicket-btn" onclick="addWicket()">Wicket</button>
+        <br>
+        <button class="btn team-btn" onclick="switchInnings()">Switch Innings</button>
+        <button class="btn reset-btn" onclick="resetGame()">Reset</button>
+    </div>
+
+    <h2 id="result"></h2>
+    <h3 id="playerStats">Player Stats:</h3>
+    <p id="playerRuns">-</p>
+
+    <script>
+        let teamA = { name: "Team A", runs: 0, wickets: 0, balls: 0, playerRuns: 0, player: "Player 1" };
+        let teamB = { name: "Team B", runs: 0, wickets: 0, balls: 0, playerRuns: 0, player: "Player 2" };
+        let currentTeam = teamA;
+        let isFirstInnings = true;
+
+        function setTeamNames() {
+            let nameA = document.getElementById("teamAName").value;
+            let nameB = document.getElementById("teamBName").value;
+            let playerA = document.getElementById("playerAName").value;
+            let playerB = document.getElementById("playerBName").value;
+
+            if (nameA) teamA.name = nameA;
+            if (nameB) teamB.name = nameB;
+            if (playerA) teamA.player = playerA;
+            if (playerB) teamB.player = playerB;
+
+            document.getElementById("currentTeam").innerText = `Batting: ${teamA.name}`;
+            document.getElementById("teamNameDisplay").innerText = `${teamA.name} Score`;
+            document.getElementById("currentPlayer").innerText = `Current Player: ${teamA.player}`;
+            updateScoreboard();
+        }
+
+        function updateScoreboard() {
+            let overs = Math.floor(currentTeam.balls / 6) + "." + (currentTeam.balls % 6);
+            document.getElementById("score").innerText = `${currentTeam.runs} / ${currentTeam.wickets}`;
+            document.getElementById("overs").innerText = `Overs: ${overs}`;
+            document.getElementById("playerRuns").innerText = `${currentTeam.player} has scored: ${currentTeam.playerRuns} Runs`;
+        }
+
+        function addRun(run) {
+            if (currentTeam.wickets < 10 && currentTeam.balls < 120) {
+                currentTeam.runs += run;
+                currentTeam.balls++;
+                currentTeam.playerRuns += run;
+                updateScoreboard();
+                checkInningsOver();
+            } else {
+                alert("Innings Over! Switch to the next team.");
+            }
+        }
+
+        function addWicket() {
+            if (currentTeam.wickets < 10 && currentTeam.balls < 120) {
+                currentTeam.wickets++;
+                currentTeam.balls++;
+                currentTeam.playerRuns = 0; 
+                updateScoreboard();
+                checkInningsOver();
+            } else {
+                alert("Innings Over! Switch to the next team.");
+            }
+        }
+
+        function checkInningsOver() {
+            if (currentTeam.balls >= 120 || currentTeam.wickets === 10) {
+                alert("Innings Over! Switch to the next team.");
+            }
+        }
+
+        function switchInnings() {
+            if (isFirstInnings) {
+                alert(`Innings Over! ${teamB.name} needs ${teamA.runs + 1} to win.`);
+                isFirstInnings = false;
+                currentTeam = teamB;
+                document.getElementById("currentTeam").innerText = `Batting: ${teamB.name}`;
+                document.getElementById("teamNameDisplay").innerText = `${teamB.name} Score`;
+                document.getElementById("currentPlayer").innerText = `Current Player: ${teamB.player}`;
+            } else {
+                declareWinner();
+            }
+            updateScoreboard();
+        }
+
+        function declareWinner() {
+            let winner = teamA.runs > teamB.runs ? `${teamA.name} Wins!` : `${teamB.name} Wins!`;
+            document.getElementById("result").innerText = winner;
+            alert(winner);
+        }
+
+        function resetGame() {
+            location.reload();
+        }
+
+        updateScoreboard();
+    </script>
+</body>
+</html>
